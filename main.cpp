@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QDialog>
 
+
 void runWineTask(const QString &selectedFile, const QString &taskName, QProcess &process, QString &userConfigDir) {
     if (selectedFile.isEmpty()) {
         qDebug() << "No game selected";
