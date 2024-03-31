@@ -1,3 +1,7 @@
+# NOTE
+
+This is work in process and the application is not ready yet. Games can be launched and winetricks and winecfg can be used, but no config files can be created.
+
 # What is this?
 
 This is my simplistic Qt5 frontend for umu-launcher (previously named ULWGL) that can use Valves Proton to launch Windows game on Linux. The name is a subject to change.
