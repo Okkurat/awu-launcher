@@ -1,0 +1,12 @@
+.qmake.stash
+
+*.o
+
+awu
+
+makefile
+Makefile
+
+moc_*.cpp
+moc_*.o
+moc_*.h
