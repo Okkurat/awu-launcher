@@ -6,3 +6,18 @@ This launcher is for a hobby project and for personal use.
 
 Umu-launcher needs to be installed on your system
 https://github.com/Open-Wine-Components/umu-launcher
+
+In the directory run
+```shell
+qmake
+```
+And
+```shell
+make
+```
+To make executable in the directory
+
+```shell
+make install
+```
+To install it to /usr/bin
