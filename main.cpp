@@ -21,6 +21,7 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
         return;
     }
 
+
     qDebug() << "Selected game:" << selectedFile;
 
     QDir directory(userConfigDir + "/awu/umu_conf");
