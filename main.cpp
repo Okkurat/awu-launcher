@@ -23,7 +23,7 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
 
     qDebug() << "Selected game:" << selectedFile;
 
-    QDir directory(userConfigDir + "/awu/umu_conf");
+    QDir directory(userConfigDir + "/awu/umu-conf");
     QString filePath = directory.absoluteFilePath(selectedFile);
 
     QFile file(filePath);
@@ -69,11 +69,11 @@ QString getUserConfigDirectory() {
 
 void createMyAppDirectory(const QString &userDir) {
     QDir().mkpath(userDir + "/awu");
-    QDir().mkpath(userDir + "/awu/umu_conf");
+    QDir().mkpath(userDir + "/awu/umu-conf");
 }
 
 void populateComboBox(QComboBox &comboBox){
-    QDir directory(QDir::homePath() + "/.config/awu/umu_conf");
+    QDir directory(getUserConfigDirectory() + "/awu/umu-conf");
     QStringList files = directory.entryList(QStringList() << "*.toml", QDir::Files);
     comboBox.clear();
     foreach(const QString &file, files) {
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 
 
     QObject::connect(&comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index){
-        QDir directory(userConfigDir + "/awu/umu_conf");
+        QDir directory(userConfigDir + "/awu/umu-conf");
         if (index >= 0) {
             QString fileName = comboBox.itemText(index);
             QString debugFileName = fileName.left(fileName.lastIndexOf('.')) + ".txt";
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
 
     QObject::connect(&button, &QPushButton::clicked, [&]() {
         QStringList arguments;
-        gameProcess.setWorkingDirectory(userConfigDir + "/awu/umu_conf");
+        gameProcess.setWorkingDirectory(userConfigDir + "/awu/umu-conf");
         QString commandText = commandTextEdit.toPlainText();
         qDebug() << commandText;
         QStringList commandParts = commandText.split(' ', Qt::SkipEmptyParts);
