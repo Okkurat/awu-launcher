@@ -14,6 +14,12 @@
 #include <QDebug>
 #include <QDialog>
 
+QString getGameFile(QComboBox &comboBox){
+        QVariantMap appName = comboBox.property("appName").value<QVariantMap>();
+        QString selectedName = comboBox.currentText();
+        QString selectedValue = appName.value(selectedName).toString();
+        return selectedValue;
+}
 void runWineTask(const QString &selectedFile, const QString &taskName, QProcess &process, QString &userConfigDir) {
     if (selectedFile.isEmpty()) {
         qDebug() << "No game selected";
@@ -76,10 +82,32 @@ void populateComboBox(QComboBox &comboBox){
     QDir directory(getUserConfigDirectory() + "/awu/umu-conf");
     QStringList files = directory.entryList(QStringList() << "*.toml", QDir::Files);
     comboBox.clear();
+    QMap<QString, QString> appName;
     foreach(const QString &file, files) {
-        comboBox.addItem(file);
+        QString fileName = file.left(file.lastIndexOf('.'));
+        QString filePath = directory.absoluteFilePath(file);
+
+        // Read toml file
+        QFile configFile(filePath);
+        if(configFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+            QTextStream in(&configFile);
+            while(!in.atEnd()){
+                QString line = in.readLine().trimmed();
+                if(line.startsWith("name")){
+                    QString name = line.split('=')[1].trimmed();
+                    name.remove(QChar('\"'));
+
+                    appName.insert(name, fileName + ".toml");
+                    comboBox.addItem(name);
+                    break;
+                }
+            }
+        }
+        configFile.close();
+        //comboBox.addItem(file);
     }
     comboBox.setCurrentIndex(-1);
+    comboBox.setProperty("appName", QVariant::fromValue(appName));
 }
 QString cleanOutput(const QString &output) {
     QString cleanedOutput = output;
@@ -147,12 +175,21 @@ int main(int argc, char **argv)
     });
 
     QObject::connect(&wineConfigButton, &QPushButton::clicked, [&]() {
-        runWineTask(comboBox.currentText(), "winecfg", wineConfigProcess, userConfigDir);
+        //
+        //QVariantMap appName = comboBox.property("appName").value<QVariantMap>();
+        //QString selectedName = comboBox.currentText();
+        //QString selectedValue = appName.value(selectedName).toString();
+        QString selectedValue = getGameFile(comboBox);
+        qDebug() << selectedValue;
+
+        runWineTask(selectedValue, "winecfg", wineConfigProcess, userConfigDir);
     });
 
     // Connect the winetricks button
     QObject::connect(&wineTricksButton, &QPushButton::clicked, [&]() {
-        runWineTask(comboBox.currentText(), "winetricks", wineTricksProcess, userConfigDir);
+        QString selectedValue = getGameFile(comboBox);
+        qDebug() << selectedValue;
+        runWineTask(selectedValue, "winetricks", wineTricksProcess, userConfigDir);
     });
 
     QObject::connect(&killButton, &QPushButton::clicked, [&]() {
@@ -174,14 +211,20 @@ int main(int argc, char **argv)
         QDir directory(userConfigDir + "/awu/umu-conf");
         if (index >= 0) {
             QString fileName = comboBox.itemText(index);
-            QString debugFileName = fileName.left(fileName.lastIndexOf('.')) + ".txt";
-            QFile debugFile(directory.absoluteFilePath(debugFileName));
-            if (debugFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream in(&debugFile);
-                QString debugContent = in.readAll();
-                debugFile.close();
-                debugContent.remove(QRegExp("\\n"));
-                commandTextEdit.setPlainText(debugContent);
+            QString debugFileName = getGameFile(comboBox);
+            QFile configFile(directory.absoluteFilePath(debugFileName));
+            if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&configFile);
+                while(!in.atEnd()){
+                    QString line = in.readLine().trimmed();
+                    if(line.startsWith("awu_args")){
+                        QString args = line.split('=')[1].trimmed();
+                        args.remove(QChar('\"'));
+                        commandTextEdit.clear();
+                        commandTextEdit.insertPlainText(args);
+                        break;
+                }
+                }
             } else {
                 commandTextEdit.clear();
             }
@@ -194,14 +237,16 @@ int main(int argc, char **argv)
         QString commandText = commandTextEdit.toPlainText();
         qDebug() << commandText;
         QStringList commandParts = commandText.split(' ', Qt::SkipEmptyParts);
+        QString selectedValue = getGameFile(comboBox);
+
 
         if (!commandTextEdit.toPlainText().isEmpty()) {
             QString command = commandParts.takeFirst();
             arguments << commandParts;
-            arguments << "umu-run" << "--config" << comboBox.currentText();
+            arguments << "umu-run" << "--config" << selectedValue;
             gameProcess.start(command, arguments);
         } else {
-            arguments << "--config" << comboBox.currentText();
+            arguments << "--config" << selectedValue;
             gameProcess.start("umu-run", arguments);
         }
     });
