@@ -1,5 +1,3 @@
-.qmake.stash
-
 *.o
 
 awu
@@ -10,3 +8,5 @@ Makefile
 moc_*.cpp
 moc_*.o
 moc_*.h
+
+/build/*

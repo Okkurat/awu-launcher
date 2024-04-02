@@ -1,6 +1,6 @@
-// addGame.h
-#ifndef ADDGAME_H
-#define ADDGAME_H
+// appedit.h
+#ifndef APPEDIT_H
+#define APPEDIT_H
 
 #include <QDialog>
 
@@ -12,4 +12,4 @@ public:
     ~PopupWindow();
 };
 
-#endif // ADDGAME_H
+#endif // APPEDIT_H

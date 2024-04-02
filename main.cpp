@@ -1,4 +1,4 @@
-#include "addGame.h"
+#include "appedit.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QVBoxLayout>
