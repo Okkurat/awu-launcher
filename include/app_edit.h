@@ -1,6 +1,6 @@
-// appedit.h
-#ifndef APPEDIT_H
-#define APPEDIT_H
+// app_edit.h
+#ifndef APPE_DIT_H
+#define APPE_DIT_H
 
 #include <QDialog>
 
@@ -12,4 +12,4 @@ public:
     ~PopupWindow();
 };
 
-#endif // APPEDIT_H
+#endif // APP_EDIT_H

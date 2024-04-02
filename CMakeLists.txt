@@ -5,18 +5,20 @@ project(awu)
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-QT5_WRAP_CPP(MOC_SOURCES appedit.h)
-
+set(CMAKE_AUTOMOC ON)
 
 set(SOURCES
-    main.cpp
-    appedit.cpp
-    ${MOC_SOURCES}
+    src/main.cpp
+    src/app_edit.cpp
+    src/main_window.cpp
 )
 
 set(HEADERS
-    appedit.h
+    include/app_edit.h
+    include/main_window.h
 )
+
+include_directories(include src)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 

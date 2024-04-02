@@ -6,24 +6,24 @@ This is work in process and the application is not ready yet. Games can be launc
 
 This is my simplistic Qt5 frontend for umu-launcher (previously named ULWGL) that can use Valves Proton to launch Windows game on Linux. The name is a subject to change.
 
-This launcher is for a hobby project and for personal use.
+This launcher is a hobby project and for personal use. You are free to expand or use the code however you want.
 
-Umu-launcher needs to be installed on your system
+Umu-launcher needs to be installed on your system and must be in your path
 https://github.com/Open-Wine-Components/umu-launcher
 In the directory run
-```cd build
+```shell
+cd build
 ```
-In the directory run
+Then run Cmake
 ```shell
 cmake ..
 ```
-And
+To make executable in the build directory
 ```shell
 make
 ```
-To make executable in the directory
+To install it to /usr/bin
 
 ```shell
 sudo make install
 ```
-To install it to /usr/bin

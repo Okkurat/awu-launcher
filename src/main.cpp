@@ -1,4 +1,4 @@
-#include "appedit.h"
+#include "app_edit.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QVBoxLayout>
@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QDialog>
+#include "main_window.h"
 
 QString getGameFile(QComboBox &comboBox){
         QVariantMap appName = comboBox.property("appName").value<QVariantMap>();
@@ -25,7 +26,6 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
         qDebug() << "No game selected";
         return;
     }
-
 
     qDebug() << "Selected game:" << selectedFile;
 
@@ -76,6 +76,7 @@ QString getUserConfigDirectory() {
 void createMyAppDirectory(const QString &userDir) {
     QDir().mkpath(userDir + "/awu");
     QDir().mkpath(userDir + "/awu/umu-conf");
+    QDir().mkpath(userDir + "/awu/proton");
 }
 
 void populateComboBox(QComboBox &comboBox){
@@ -104,7 +105,6 @@ void populateComboBox(QComboBox &comboBox){
             }
         }
         configFile.close();
-        //comboBox.addItem(file);
     }
     comboBox.setCurrentIndex(-1);
     comboBox.setProperty("appName", QVariant::fromValue(appName));
@@ -221,7 +221,9 @@ int main(int argc, char **argv)
                         QString args = line.split('=')[1].trimmed();
                         args.remove(QChar('\"'));
                         commandTextEdit.clear();
-                        commandTextEdit.insertPlainText(args);
+                        if(args != "none"){
+                            commandTextEdit.insertPlainText(args);
+                        }
                         break;
                 }
                 }
@@ -313,5 +315,7 @@ int main(int argc, char **argv)
     window.setLayout(&mainLayout);
     window.setWindowTitle("Awu");
     window.show();
+    MainWindow mainWindow;
+    mainWindow.show();
     return app.exec();
 }

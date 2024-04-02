@@ -1,5 +1,5 @@
-// appedit.cpp
-#include "appedit.h"
+// app_edit.cpp
+#include "app_edit.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
