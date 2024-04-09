@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/awu.dir/awu_autogen/mocs_compilation.cpp.o CMakeFiles/awu.dir/main.cpp.o CMakeFiles/awu.dir/app_edit.cpp.o CMakeFiles/awu.dir/main_window.cpp.o CMakeFiles/awu.dir/utils.cpp.o -o awu  /usr/lib/libQt5Widgets.so.5.15.13 /usr/lib/libQt5Gui.so.5.15.13 /usr/lib/libQt5Core.so.5.15.13
