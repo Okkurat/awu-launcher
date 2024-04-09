@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    virtual ~MainWindow();
+    ~MainWindow();
 
 private slots:
     void popUpWindowExec();
