@@ -19,8 +19,12 @@ public:
     virtual ~MainWindow();
 
 private slots:
-    void handleTestButtonClick();
     void popUpWindowExec();
+    void runWineTricks();
+    void runWineConfig();
+    void comboBoxCurrentIndexChanged(int index);
+    void killProcessFn();
+    void runGameProcessFn();
 
 private:
     QComboBox *comboBox;
@@ -40,6 +44,5 @@ private:
     QProcess *wineConfigProcess;
     QWidget *centralWidget;
 };
-
 
 #endif // MAIN_WINDOW_H

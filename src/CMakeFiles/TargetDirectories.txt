@@ -1,0 +1,9 @@
+/home/arkki/koodaus/awu/src/CMakeFiles/awu.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/edit_cache.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/rebuild_cache.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/list_install_components.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/install.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/install/local.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/install/strip.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/awu_autogen_timestamp_deps.dir
+/home/arkki/koodaus/awu/src/CMakeFiles/awu_autogen.dir

@@ -11,11 +11,13 @@ set(SOURCES
     src/main.cpp
     src/app_edit.cpp
     src/main_window.cpp
+    src/utils.cpp
 )
 
 set(HEADERS
     include/app_edit.h
     include/main_window.h
+    include/utils.h
 )
 
 include_directories(include src)
