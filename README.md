@@ -22,8 +22,8 @@ To make executable in the build directory
 ```shell
 make
 ```
-To install it to /usr/bin
+To install it to /.local/bin
 
 ```shell
-sudo make install
+make install
 ```

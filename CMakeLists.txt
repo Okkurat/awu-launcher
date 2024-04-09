@@ -26,4 +26,4 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION /usr/bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION $ENV{HOME}/.local/bin)
