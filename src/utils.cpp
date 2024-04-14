@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QTextEdit>
 
+
 QString getUserConfigDirectory() {
     QString configDir;
 #ifdef XDG_CONFIG_HOME
@@ -124,11 +125,13 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
 }
 QString cleanOutput(const QString &output) {
     QString cleanedOutput = output;
-    cleanedOutput.remove(QRegExp("\x1B\\[[0-9;]*[A-Za-z]")); // Remove escape sequences
-    cleanedOutput.remove(QRegExp("\"")); // Remove extra quotes
+    QRegularExpression re("\x1B\\[[0-9;]*[A-Za-z]"); // Regular expression to match escape sequences
+    cleanedOutput.remove(re); // Remove escape sequences
+    cleanedOutput.remove("\""); // Remove extra quotes
     cleanedOutput.replace("\\n", "\n"); // Replace "\\n" with newline
     return cleanedOutput.trimmed(); // Remove leading and trailing whitespace
 }
+
 QString getGameFile(QComboBox &comboBox){
         QVariantMap appName = comboBox.property("appName").value<QVariantMap>();
         QString selectedName = comboBox.currentText();
@@ -143,6 +146,27 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
     qDebug() << commandText;
     QStringList commandParts = commandText.split(' ', Qt::SkipEmptyParts);
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    // Get PATH variable value
+    QString path = env.value("PATH");
+
+    // Append .local/bin to PATH
+    QString homeDir;
+    #ifdef XDG_CONFIG_HOME
+    // Use the XDG_CONFIG_HOME environment variable if available
+    homeDir = QString::fromUtf8(qgetenv("XDG_CONFIG_HOME"));
+    #else
+    homeDir = QDir::homePath();
+    #endif
+    path+= ":" + homeDir + "/.local/bin";
+    qDebug() << path;
+
+    // Set modified PATH in the environment
+    env.insert("PATH", path);
+
+    // Set the modified environment for the process
+    process.setProcessEnvironment(env);
 
     if (!commandText.isEmpty()) {
         QString command = commandParts.takeFirst();

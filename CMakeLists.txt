@@ -4,7 +4,7 @@ project(awu)
 
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 set(SOURCES
@@ -24,6 +24,6 @@ include_directories(include src)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} Qt6::Widgets)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION $ENV{HOME}/.local/bin)
