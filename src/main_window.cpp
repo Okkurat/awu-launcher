@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainLayout->addLayout(mainButtonLayout);
     mainLayout->addLayout(wineLayout);
 
-    mainLayout->addWidget(addGameButton);
+    //mainLayout->addWidget(addGameButton);
 
     populateComboBox(*comboBox);
     commandTextEdit->clear();
@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(wineConfigButton, &QPushButton::clicked, this, &MainWindow::runWineConfig);
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comboBoxCurrentIndexChanged);
     connect(killButton, &QPushButton::clicked, this, &MainWindow::killProcessFn);
-    connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
+    //connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
 }
 
 MainWindow::~MainWindow() {
