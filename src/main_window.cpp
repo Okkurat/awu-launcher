@@ -72,12 +72,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     setWindowTitle("Awu");
 
-    connect(addGameButton, &QPushButton::clicked, this, &MainWindow::popUpWindowExec);
+    //connect(addGameButton, &QPushButton::clicked, this, &MainWindow::popUpWindowExec);
     connect(wineTricksButton, &QPushButton::clicked, this, &MainWindow::runWineTricks);
     connect(wineConfigButton, &QPushButton::clicked, this, &MainWindow::runWineConfig);
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comboBoxCurrentIndexChanged);
     connect(killButton, &QPushButton::clicked, this, &MainWindow::killProcessFn);
-    //connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
+    connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
 }
 
 MainWindow::~MainWindow() {
