@@ -5,7 +5,7 @@
 #include <QProcess>
 #include <QDebug>
 #include <QTextEdit>
-
+#include <QFile>
 
 QString getUserConfigDirectory() {
     QString configDir;
@@ -142,40 +142,34 @@ QString getGameFile(QComboBox &comboBox){
 void runGameProcess(QProcess &process, QString commandText, QString selectedGame){
 
     QStringList arguments;
+    QString umuRun;
     process.setWorkingDirectory(getUserConfigDirectory() + "/awu/umu-conf");
     qDebug() << commandText;
     QStringList commandParts = commandText.split(' ', Qt::SkipEmptyParts);
 
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-    // Get PATH variable value
-    QString path = env.value("PATH");
-
-    // Append .local/bin to PATH
-    QString homeDir;
-    #ifdef XDG_CONFIG_HOME
-    // Use the XDG_CONFIG_HOME environment variable if available
-    homeDir = QString::fromUtf8(qgetenv("XDG_CONFIG_HOME"));
-    #else
-    homeDir = QDir::homePath();
-    #endif
-    path+= ":" + homeDir + "/.local/bin";
-    qDebug() << path;
-
-    // Set modified PATH in the environment
-    env.insert("PATH", path);
-
-    // Set the modified environment for the process
-    process.setProcessEnvironment(env);
-
+    // Currently if umu-run is not /usr, supports launching through /.local/bin only
+    // Some weird behaviour with paths happen when you run this as desktop file. If you give commands like mangohud and / or gamescope it works, but otherwise it will not find the path so we do this the ugly way
+    QString umuRunPathTest = QDir::homePath() + "/.local/bin/umu-run";
+    QFile umuRunPathCheck(umuRunPathTest);
+    if(umuRunPathCheck.exists()){
+        umuRun = umuRunPathTest;
+    } else {
+        umuRun = "umu-run";
+    }
+    qDebug() << umuRun;
     if (!commandText.isEmpty()) {
         QString command = commandParts.takeFirst();
         arguments << commandParts;
-        arguments << "umu-run" << "--config" << selectedGame;
+        arguments << umuRun << "--config" << selectedGame;
         process.start(command, arguments);
     } else {
         arguments << "--config" << selectedGame;
-        process.start("umu-run", arguments);
+        process.start(umuRun, arguments);
+    }
+
+    if (!process.waitForStarted()) {
+        qDebug() << "Failed to start process:" << process.errorString();
+        return;
     }
 
     QObject::connect(&process, &QProcess::readyReadStandardOutput, [&]() {
