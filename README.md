@@ -43,6 +43,7 @@ game_id = "0"
 exe = "/path/to/your/game/file"
 launch_args = ["-opengl", "-SkipBuildPatchPrereq"]
 store = "none"
+[awu]
 name = "The game"
 awu_args = "gamescope -w 1920 -h 1080 -- mangohud"
 ```

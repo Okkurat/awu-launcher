@@ -60,8 +60,10 @@ void populateComboBox(QComboBox &comboBox){
                 }
             }
         }
-        configFile.close();
+  
+	configFile.close();
     }
+ 
     comboBox.setCurrentIndex(-1);
     comboBox.setProperty("appName", QVariant::fromValue(appName));
 }
@@ -166,23 +168,18 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
         arguments << "--config" << selectedGame;
         process.start(umuRun, arguments);
     }
-
     if (!process.waitForStarted()) {
         qDebug() << "Failed to start process:" << process.errorString();
         return;
     }
-
     QObject::connect(&process, &QProcess::readyReadStandardOutput, [&]() {
         QByteArray output = process.readAllStandardOutput();
         qDebug() << cleanOutput(output);
     });
-
     QObject::connect(&process, &QProcess::readyReadStandardError, [&]() {
         QByteArray error = process.readAllStandardError();
         qDebug() << cleanOutput(error);
     });
-
-
     QObject::connect(&process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&](int exitCode, QProcess::ExitStatus exitStatus) {
         if (exitStatus == QProcess::NormalExit) {
             qDebug() << "Process finished successfully with exit code:" << exitCode;

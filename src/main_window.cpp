@@ -1,6 +1,7 @@
 // main_window.cpp
 #include "main_window.h"
 #include "app_edit.h"
+#include "utils.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -13,7 +14,6 @@
 #include <QProcess>
 #include <QComboBox>
 #include <QTextEdit>
-#include "utils.h"
 #include <QDir>
 #include <QFile>
 
@@ -65,14 +65,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainLayout->addLayout(mainButtonLayout);
     mainLayout->addLayout(wineLayout);
 
-    //mainLayout->addWidget(addGameButton);
+    mainLayout->addWidget(addGameButton);
 
     populateComboBox(*comboBox);
     commandTextEdit->clear();
 
     setWindowTitle("Awu");
 
-    //connect(addGameButton, &QPushButton::clicked, this, &MainWindow::popUpWindowExec);
+    connect(addGameButton, &QPushButton::clicked, this, &MainWindow::popUpWindowExec);
     connect(wineTricksButton, &QPushButton::clicked, this, &MainWindow::runWineTricks);
     connect(wineConfigButton, &QPushButton::clicked, this, &MainWindow::runWineConfig);
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comboBoxCurrentIndexChanged);
