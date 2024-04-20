@@ -134,11 +134,11 @@ QString cleanOutput(const QString &output) {
     return cleanedOutput.trimmed(); // Remove leading and trailing whitespace
 }
 
-QString getGameFile(QComboBox &comboBox){
-        QVariantMap appName = comboBox.property("appName").value<QVariantMap>();
-        QString selectedName = comboBox.currentText();
-        QString selectedValue = appName.value(selectedName).toString();
-        return selectedValue;
+QPair<QString, QString> getGameInfo(QComboBox &comboBox){
+    QVariantMap appNameMap = comboBox.property("appName").toMap();
+    QString selectedName = comboBox.currentText();
+    QString selectedValue = appNameMap[selectedName].toString();
+    return qMakePair(selectedValue, selectedName);
 }
 
 void runGameProcess(QProcess &process, QString commandText, QString selectedGame){
@@ -206,7 +206,7 @@ void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit) {
     int index = comboBox.currentIndex();
     if (index >= 0) {
         QString fileName = comboBox.itemText(index);
-        QString debugFileName = getGameFile(comboBox);
+        QString debugFileName = getGameInfo(comboBox).first;
         QFile configFile(directory.absoluteFilePath(debugFileName));
         if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&configFile);
@@ -226,4 +226,27 @@ void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit) {
             commandTextEdit.clear();
         }
     }
+}
+bool deleteGame(const QString &selectedFile, QProcess &process){
+	qDebug() << "Selected game: " << selectedFile;
+	
+	if(selectedFile.isEmpty()){
+		return false;
+	}
+	QString filePath = getUserConfigDirectory() + "/awu/umu-conf/" + selectedFile;
+	qDebug() << filePath;
+	if(QFile::exists(filePath)){
+		if(QFile::remove(filePath)){
+			qDebug() << selectedFile << " Deleted succesfully";
+			return true;
+		} else {
+			qDebug() << "Failed to delete the file";
+			return false;
+		}
+	} else {
+		qDebug() << "File does not exist";
+		return false;
+	}
+
+	return true;
 }

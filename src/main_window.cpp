@@ -16,6 +16,7 @@
 #include <QTextEdit>
 #include <QDir>
 #include <QFile>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     centralWidget = new QWidget(this);
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     killProcess = new QProcess(this);
     wineTricksProcess = new QProcess(this);
     wineConfigProcess = new QProcess(this);
-
+	deleteGameProcess = new QProcess(this); 
     // Creating widgets
     comboBox = new QComboBox(this);
     launchArgumentsLabel = new QLabel("Launch arguments", this);
@@ -35,7 +36,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     wineTricksButton = new QPushButton("Winetricks");
     wineConfigButton = new QPushButton("WineConfig");
     addGameButton = new QPushButton("Add game");
-
+	deleteGameButton = new QPushButton("Delete game");
+	
     // Setting fixed sizes for certain widgets
     launchArgumentsLabel->setFixedSize(400,30);
     commandTextEdit->setFixedSize(400, 30);
@@ -44,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     killButton->setFixedSize(200,30);
     wineConfigButton->setFixedSize(200,30);
     addGameButton->setFixedSize(200,30);
+	deleteGameButton->setFixedSize(200,30);
 
     mainLayout = new QVBoxLayout(centralWidget);
 
@@ -61,40 +64,52 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainButtonLayout = new QHBoxLayout;
     mainButtonLayout->addWidget(playButton);
     mainButtonLayout->addWidget(killButton);
+	
 
+	addDeleteLayout = new QHBoxLayout;
+	addDeleteLayout->addWidget(addGameButton);
+	addDeleteLayout->addWidget(deleteGameButton);
+
+	
+    mainLayout->addWidget(addGameButton);
+	mainLayout->addWidget(deleteGameButton);
+	
+	// Add all to mainLayout
     mainLayout->addLayout(mainButtonLayout);
     mainLayout->addLayout(wineLayout);
-
-    mainLayout->addWidget(addGameButton);
+	mainLayout->addLayout(addDeleteLayout);
 
     populateComboBox(*comboBox);
     commandTextEdit->clear();
 
     setWindowTitle("Awu");
 
-    connect(addGameButton, &QPushButton::clicked, this, &MainWindow::popUpWindowExec);
+    connect(addGameButton, &QPushButton::clicked, this, &MainWindow::addGameWindowExec);
     connect(wineTricksButton, &QPushButton::clicked, this, &MainWindow::runWineTricks);
     connect(wineConfigButton, &QPushButton::clicked, this, &MainWindow::runWineConfig);
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::comboBoxCurrentIndexChanged);
     connect(killButton, &QPushButton::clicked, this, &MainWindow::killProcessFn);
     connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
+	connect(deleteGameButton, &QPushButton::clicked, this, &MainWindow::deleteGameFn);
 }
+
 
 MainWindow::~MainWindow() {
     delete gameProcess;
     delete killProcess;
     delete wineTricksProcess;
     delete wineConfigProcess;
+	delete deleteGameProcess;
 }
 
 void MainWindow::runWineTricks(){
-    QString selectedValue = getGameFile(*comboBox);
+    QString selectedValue = getGameInfo(*comboBox).first;
     qDebug() << selectedValue;
     runWineTask(selectedValue, "winetricks", *wineTricksProcess, getUserConfigDirectory());
 }
 
 void MainWindow::runWineConfig(){
-    QString selectedValue = getGameFile(*comboBox);
+    QString selectedValue = getGameInfo(*comboBox).first;
     qDebug() << selectedValue;
     runWineTask(selectedValue, "winecfg", *wineTricksProcess, getUserConfigDirectory());
 }
@@ -105,12 +120,37 @@ void MainWindow::killProcessFn(){
     killAppProcess(*killProcess);
 }
 
-void MainWindow::popUpWindowExec(){
+void MainWindow::deleteGameFn(){
+	QPair<QString, QString> gameInfoPair = getGameInfo(*comboBox);
+    QString selectedValue = gameInfoPair.first;
+    QString appName = gameInfoPair.second;
+	
+	qDebug() << appName;
+
+	QMessageBox::StandardButton dialog;
+	dialog = QMessageBox::question(nullptr, "Confirmation", "Do you want to delete <b>" + appName + "</b>?<br><font color=\"red\">Note that this only deletes config file, not the prefix nor game files themselves</font>", QMessageBox::Yes|QMessageBox::No);
+
+	if(dialog == QMessageBox::Yes){
+		qDebug() << "Yes clicked";
+	} else {
+		qDebug() << "No clicked";
+		return;
+	}
+
+	bool deletedGame = deleteGame(selectedValue, *deleteGameProcess);
+	if(deletedGame){
+		populateComboBox(*comboBox);
+		commandTextEdit->clear();
+	}
+}
+
+
+void MainWindow::addGameWindowExec(){
     PopupWindow popupWindow(centralWidget);
     popupWindow.exec();
 }
 void MainWindow::runGameProcessFn(){
-    QString selectedValue = getGameFile(*comboBox);
+    QString selectedValue = getGameInfo(*comboBox).first;
     QString commandText = commandTextEdit->toPlainText();
     runGameProcess(*gameProcess, commandText, selectedValue);
 }

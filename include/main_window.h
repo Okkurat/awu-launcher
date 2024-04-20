@@ -19,7 +19,8 @@ public:
     ~MainWindow();
 
 private slots:
-    void popUpWindowExec();
+    void addGameWindowExec();
+	void deleteGameFn();
     void runWineTricks();
     void runWineConfig();
     void comboBoxCurrentIndexChanged(int index);
@@ -35,13 +36,16 @@ private:
     QPushButton *wineTricksButton;
     QPushButton *wineConfigButton;
     QPushButton *addGameButton;
+	QPushButton *deleteGameButton;
     QVBoxLayout *mainLayout;
     QHBoxLayout *mainButtonLayout;
     QHBoxLayout *wineLayout;
-    QProcess *gameProcess;
+    QHBoxLayout *addDeleteLayout;
+	QProcess *gameProcess;
     QProcess *killProcess;
     QProcess *wineTricksProcess;
     QProcess *wineConfigProcess;
+	QProcess *deleteGameProcess;
     QWidget *centralWidget;
 };
 
