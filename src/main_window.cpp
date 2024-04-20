@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     killProcess = new QProcess(this);
     wineTricksProcess = new QProcess(this);
     wineConfigProcess = new QProcess(this);
-	deleteGameProcess = new QProcess(this); 
     // Creating widgets
     comboBox = new QComboBox(this);
     launchArgumentsLabel = new QLabel("Launch arguments", this);
@@ -99,7 +98,6 @@ MainWindow::~MainWindow() {
     delete killProcess;
     delete wineTricksProcess;
     delete wineConfigProcess;
-	delete deleteGameProcess;
 }
 
 void MainWindow::runWineTricks(){
@@ -111,7 +109,7 @@ void MainWindow::runWineTricks(){
 void MainWindow::runWineConfig(){
     QString selectedValue = getGameInfo(*comboBox).first;
     qDebug() << selectedValue;
-    runWineTask(selectedValue, "winecfg", *wineTricksProcess, getUserConfigDirectory());
+    runWineTask(selectedValue, "winecfg", *wineConfigProcess, getUserConfigDirectory());
 }
 void MainWindow::comboBoxCurrentIndexChanged(int index){
     updateCommandTextEdit(*comboBox, *commandTextEdit);
@@ -128,7 +126,7 @@ void MainWindow::deleteGameFn(){
 	qDebug() << appName;
 
 	QMessageBox::StandardButton dialog;
-	dialog = QMessageBox::question(nullptr, "Confirmation", "Do you want to delete <b>" + appName + "</b>?<br><font color=\"red\">Note that this only deletes config file, not the prefix nor game files themselves</font>", QMessageBox::Yes|QMessageBox::No);
+	dialog = QMessageBox::question(nullptr, "Confirmation", "Do you want to delete <b>" + appName + "</b>?<br> <font color=\"red\">Note that this only deletes config file, not the prefix nor game files themselves</font>", QMessageBox::Yes|QMessageBox::No);
 
 	if(dialog == QMessageBox::Yes){
 		qDebug() << "Yes clicked";
@@ -137,7 +135,7 @@ void MainWindow::deleteGameFn(){
 		return;
 	}
 
-	bool deletedGame = deleteGame(selectedValue, *deleteGameProcess);
+	bool deletedGame = deleteGame(selectedValue);
 	if(deletedGame){
 		populateComboBox(*comboBox);
 		commandTextEdit->clear();

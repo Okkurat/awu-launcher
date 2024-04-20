@@ -227,7 +227,7 @@ void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit) {
         }
     }
 }
-bool deleteGame(const QString &selectedFile, QProcess &process){
+bool deleteGame(const QString &selectedFile){
 	qDebug() << "Selected game: " << selectedFile;
 	
 	if(selectedFile.isEmpty()){

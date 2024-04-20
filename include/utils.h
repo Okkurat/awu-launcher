@@ -15,5 +15,5 @@ QPair<QString, QString> getGameInfo(QComboBox &comboBox);
 void runGameProcess(QProcess &process, QString commandText, QString selectedGame);
 void killAppProcess(QProcess &process);
 void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit);
-bool deleteGame(const QString &selectedFile, QProcess &process);
+bool deleteGame(const QString &selectedFile);
 #endif // UTILS_H
