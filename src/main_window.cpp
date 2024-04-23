@@ -111,6 +111,7 @@ void MainWindow::editGameFn(){
     PopupWindow editGamePopupWindow(centralWidget, gameFile);
     int result = editGamePopupWindow.exec();
     populateComboBox(*comboBox);
+    commandTextEdit->clear();
 }
 
 void MainWindow::runWineTricks(){
@@ -160,6 +161,7 @@ void MainWindow::addGameWindowExec(){
     PopupWindow popupWindow(centralWidget);
     int result = popupWindow.exec();
     populateComboBox(*comboBox);
+    commandTextEdit->clear();
 }
 void MainWindow::runGameProcessFn(){
     QString selectedValue = getGameInfo(*comboBox).first;
