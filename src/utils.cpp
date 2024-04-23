@@ -6,6 +6,10 @@
 #include <QDebug>
 #include <QTextEdit>
 #include <QFile>
+#include <QList>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 QString getUserConfigDirectory() {
     QString configDir;
@@ -249,4 +253,33 @@ bool deleteGame(const QString &selectedFile){
 	}
 
 	return true;
+}
+bool writeConfigFile(QList<QString> config, const QString &fileName){
+    QString arg;
+    QString filePath = getUserConfigDirectory() + "/awu/umu-conf/" + fileName;
+    qDebug() << filePath;
+    std::string str = filePath.toStdString();
+    std::ofstream file(str);
+    if(!file.is_open()) {
+        qDebug() << "Failed to open file for writing";
+        return false;
+    }
+    file << "# " << fileName.toStdString() << std::endl;
+    qDebug() << "# " << fileName;
+    file << "[umu]" << std::endl;
+    qDebug() << "[umu]";
+    for (int i = 0; i < config.size(); ++i) {
+        qDebug() << config[i];
+        file << config[i].toStdString() << std::endl;
+        if(i == 5) {
+            file << "[awu]" << std::endl;
+            qDebug() << "[awu]";
+        }
+    }
+    file.close();
+
+    qDebug() << "Config was successfully written to the file: " << fileName;
+    qDebug() << "File was written to: " << filePath;
+
+    return true;
 }

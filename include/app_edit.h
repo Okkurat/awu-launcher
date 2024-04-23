@@ -14,14 +14,16 @@ class PopupWindow : public QDialog {
     Q_OBJECT
 
 public:
-    PopupWindow(QWidget *parent = nullptr);
+    PopupWindow(QWidget *parent = nullptr,
+			const QString& configFile = "");
     ~PopupWindow();
 
 private slots:
-	void doneFn();
+	void doneFn(const QString& gameFile);
 	void searchDatabase();
 	void setPrefix();
 	void setExe();
+	void protonComboBoxChanged(int index);
 private:
 	QWidget *centralWidget;
     QVBoxLayout *layout;
@@ -50,6 +52,7 @@ private:
 	QComboBox *storeComboBox;
 	QLabel *awuArgsLabel;
 	QTextEdit *awuArgsEdit;
+	void populateProtonBox();
 };
 
 #endif // APP_EDIT_H

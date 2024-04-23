@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     killProcess = new QProcess(this);
     wineTricksProcess = new QProcess(this);
     wineConfigProcess = new QProcess(this);
-    // Creating widgets
     comboBox = new QComboBox(this);
     launchArgumentsLabel = new QLabel("Launch arguments", this);
     commandTextEdit = new QTextEdit(this);
@@ -36,7 +35,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     wineConfigButton = new QPushButton("WineConfig");
     addGameButton = new QPushButton("Add game");
 	deleteGameButton = new QPushButton("Delete game");
-	
+	editGameButton = new QPushButton("Edit");
+
     // Setting fixed sizes for certain widgets
     launchArgumentsLabel->setFixedSize(400,30);
     commandTextEdit->setFixedSize(400, 30);
@@ -48,8 +48,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 	deleteGameButton->setFixedSize(200,30);
 
     mainLayout = new QVBoxLayout(centralWidget);
+    comboBoxLayout = new QHBoxLayout;
+    comboBoxLayout->addWidget(comboBox);
+    comboBoxLayout->addWidget(editGameButton);
 
-    mainLayout->addWidget(comboBox);
+    mainLayout->addLayout(comboBoxLayout);
     mainLayout->addWidget(launchArgumentsLabel);
     mainLayout->addWidget(commandTextEdit);
 
@@ -90,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(killButton, &QPushButton::clicked, this, &MainWindow::killProcessFn);
     connect(playButton, &QPushButton::clicked, this, &MainWindow::runGameProcessFn);
 	connect(deleteGameButton, &QPushButton::clicked, this, &MainWindow::deleteGameFn);
+    connect(editGameButton, &QPushButton::clicked, this, &MainWindow::editGameFn);
 }
 
 
@@ -98,6 +102,15 @@ MainWindow::~MainWindow() {
     delete killProcess;
     delete wineTricksProcess;
     delete wineConfigProcess;
+}
+void MainWindow::editGameFn(){
+    QString gameFile = getGameInfo(*comboBox).first;
+    if(gameFile.isEmpty()){
+        return;
+    }
+    PopupWindow editGamePopupWindow(centralWidget, gameFile);
+    int result = editGamePopupWindow.exec();
+    populateComboBox(*comboBox);
 }
 
 void MainWindow::runWineTricks(){
@@ -145,7 +158,8 @@ void MainWindow::deleteGameFn(){
 
 void MainWindow::addGameWindowExec(){
     PopupWindow popupWindow(centralWidget);
-    popupWindow.exec();
+    int result = popupWindow.exec();
+    populateComboBox(*comboBox);
 }
 void MainWindow::runGameProcessFn(){
     QString selectedValue = getGameInfo(*comboBox).first;

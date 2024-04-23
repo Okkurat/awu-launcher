@@ -26,6 +26,7 @@ private slots:
     void comboBoxCurrentIndexChanged(int index);
     void killProcessFn();
     void runGameProcessFn();
+    void editGameFn();
 
 private:
     QComboBox *comboBox;
@@ -36,7 +37,9 @@ private:
     QPushButton *wineTricksButton;
     QPushButton *wineConfigButton;
     QPushButton *addGameButton;
+    QPushButton *editGameButton;
 	QPushButton *deleteGameButton;
+    QHBoxLayout *comboBoxLayout;
     QVBoxLayout *mainLayout;
     QHBoxLayout *mainButtonLayout;
     QHBoxLayout *wineLayout;

@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QProcess>
 #include <QTextEdit>
+#include <QList>
 
 QString getUserConfigDirectory();
 void createMyAppDirectory();
@@ -16,4 +17,5 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
 void killAppProcess(QProcess &process);
 void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit);
 bool deleteGame(const QString &selectedFile);
+bool writeConfigFile(QList<QString> config, const QString &fileName);
 #endif // UTILS_H

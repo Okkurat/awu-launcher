@@ -8,10 +8,18 @@
 #include <QWidget>
 #include <QIcon>
 #include <QComboBox>
-PopupWindow::PopupWindow(QWidget *parent) : QDialog(parent) {
+#include "utils.h"
+#include <QDir>
+#include <QFileDialog>
+#include <QDirIterator>
+#include <QMessageBox>
+
+PopupWindow::PopupWindow(QWidget *parent, const QString& gameFile) : QDialog(parent) {
     	
     centralWidget = new QWidget(this);
 	
+	qDebug() << "Gamefile: " << gameFile;
+
 	layout = new QVBoxLayout(centralWidget);
 	doneCloseLayout = new QHBoxLayout();
 	gameNameLayout = new QHBoxLayout();
@@ -29,8 +37,8 @@ PopupWindow::PopupWindow(QWidget *parent) : QDialog(parent) {
     searchButton = new QPushButton();
 	protonComboBox = new QComboBox();
 	protonLabel = new QLabel("Choose proton");
-	gameIdLabel = new QLabel("Choose game id (if left empty, default is 0)");
-	gameIdEdit = new QTextEdit();
+	gameIdLabel = new QLabel("Choose game id (default should be 0)");
+	gameIdEdit = new QTextEdit("0");
 	gameExeLabel = new QLabel("Choose executable");
 	gameExeEdit = new QTextEdit();
 	gameExeButton = new QPushButton();
@@ -55,18 +63,22 @@ PopupWindow::PopupWindow(QWidget *parent) : QDialog(parent) {
 	gameExeEdit->setFixedSize(400,30);
 	launchArgsLabel->setFixedSize(400,30);
 	launchArgsEdit->setFixedSize(400,30);
-	storeLabel->setFixedSize(400,30);	
+	storeLabel->setFixedSize(400,30);
 	awuArgsLabel->setFixedSize(400,30);
 	awuArgsEdit->setFixedSize(400,30);
 
 
-	storeComboBox->addItem("Amazon");
-	storeComboBox->addItem("Epic Games Store");
-	storeComboBox->addItem("GOG");
-	storeComboBox->addItem("HumbleBundle");
-	storeComboBox->addItem("Ubisoft");
-	storeComboBox->addItem("None");
-	storeComboBox->addItem("ZOOM Platform");
+	storeComboBox->addItem("amazon");
+	storeComboBox->addItem("battlenet");
+	storeComboBox->addItem("ea");
+	storeComboBox->addItem("egs");
+	storeComboBox->addItem("gog");
+	storeComboBox->addItem("humble");
+	storeComboBox->addItem("itchio");
+	storeComboBox->addItem("ubisoft");
+	storeComboBox->addItem("zoomplatform");
+	storeComboBox->addItem("none");
+	storeComboBox->setCurrentIndex(9);
 
 	doneCloseLayout->addWidget(doneButton);
 	doneCloseLayout->addWidget(closeButton);
@@ -102,17 +114,153 @@ PopupWindow::PopupWindow(QWidget *parent) : QDialog(parent) {
 	resize(500,700);
 
     connect(closeButton, &QPushButton::clicked, this, &PopupWindow::close);
-	connect(doneButton, &QPushButton::clicked, this, &PopupWindow::doneFn);
+	connect(doneButton, &QPushButton::clicked, this, [=]() { doneFn(gameFile); });
 	connect(searchButton, &QPushButton::clicked, this, &PopupWindow::searchDatabase);
 	connect(prefixButton, &QPushButton::clicked, this, &PopupWindow::setPrefix);
-	connect(gameExeButton, &QPushButton::clicked, this, &PopupWindow::setExe);	
+	connect(gameExeButton, &QPushButton::clicked, this, &PopupWindow::setExe);
+	connect(protonComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PopupWindow::protonComboBoxChanged);
+
+	populateProtonBox();
+
+	if (!gameFile.isEmpty()) {
+		int index;
+		QString filePath = getUserConfigDirectory() + "/awu/umu-conf/" + gameFile;
+        QFile file(filePath);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+			int i = 0;
+            while (!in.atEnd()) {
+                QString line = in.readLine().trimmed();
+				qDebug() << line;
+				if(i == 0 || i == 1 || i == 8){
+					i++;
+					qDebug() << "CATCH";
+					continue;
+				}
+				qDebug() << "YES";
+				QStringList parts = line.split("=");
+				if(parts.length() == 2){
+					qDebug() << "FUCK YEAAH";
+					QString key = parts[0].trimmed();
+					QString value = parts[1].trimmed().remove('\"');
+					if(key == "prefix"){
+						prefixPath->setText(value);
+					}
+					else if(key == "game_id"){
+						gameIdEdit->setText(value);
+					}
+					else if(key == "launch_args"){
+						value = value.remove('[').remove(']');
+						QStringList args = value.split(",", Qt::SkipEmptyParts);
+						QString launchArgs;
+						for (const QString &arg : args)
+							launchArgs += arg.trimmed() + " ";
+						launchArgsEdit->setText(launchArgs.trimmed());
+					}
+					else if(key == "store"){
+						index = storeComboBox->findText(value);
+						if (index != -1){
+							storeComboBox->setCurrentIndex(index);
+						}
+					}
+					else if(key == "proton"){
+						QStringList pathParts = value.split('/');
+						QString protonName = pathParts.last();
+						qDebug() << protonName;
+						index = protonComboBox->findText(protonName);
+						if (index != -1){
+							protonComboBox->setCurrentIndex(index);
+						}
+					}
+					else if(key == "name"){
+						gameName->setText(value);
+					}
+					else if(key == "awu_args"){
+						awuArgsEdit->setText(value);
+					}
+					else if(key == "exe"){
+						gameExeEdit->setText(value);
+					}
+				}
+				i++;
+
+            }
+            file.close();
+        } else {
+			qDebug() << "Failed to open file";
+		}
+    }
+
 }
 
 PopupWindow::~PopupWindow() {
 }
-void PopupWindow::doneFn(){
-	qDebug() << "done button pressed";
-	PopupWindow::close();
+void PopupWindow::doneFn(const QString& gameFile){
+	qDebug() << "Done button pressed";
+
+    QString gameTitle = gameName->toPlainText().trimmed();
+	gameTitle = QString("%1 = \"%2\"").arg("name").arg(gameTitle);
+
+    QString prefixDir = prefixPath->toPlainText().trimmed();
+	prefixDir = QString("%1 = \"%2\"").arg("prefix").arg(prefixDir);
+
+    QString gameId = gameIdEdit->toPlainText().trimmed();
+	gameId = QString("%1 = \"%2\"").arg("game_id").arg(gameId);
+
+    QString gameExe = gameExeEdit->toPlainText().trimmed();
+	gameExe = QString("%1 = \"%2\"").arg("exe").arg(gameExe);
+	QString launchArgsTemp;
+	QString launchArgs = launchArgsEdit->toPlainText().trimmed();
+	if(launchArgs.isEmpty()){
+		launchArgsTemp = "[\"\"]";
+	} else {
+		QStringList launchArgsList = launchArgs.split(" ", Qt::SkipEmptyParts);
+		launchArgsTemp = "[";
+		for(const QString &arg: launchArgsList){
+			launchArgsTemp += "\"";
+			launchArgsTemp += arg;
+			launchArgsTemp += "\",";
+		}
+		launchArgsTemp.replace(launchArgsTemp.length() - 1, 1, "]");
+	}
+	launchArgs = QString("%1 = %2").arg("launch_args").arg(launchArgsTemp);
+
+    QString awuArgs = awuArgsEdit->toPlainText().trimmed();
+	awuArgs = QString("%1 = \"%2\"").arg("awu_args").arg(awuArgs);
+    QString selectedProton = protonComboBox->currentData().toString().trimmed();
+	selectedProton = QString("%1 = \"%2\"").arg("proton").arg(selectedProton);
+    QString selectedStore = storeComboBox->currentText().trimmed();
+	selectedStore = QString("%1 = \"%2\"").arg("store").arg(selectedStore);
+	QList<QString> config;
+	config.append(prefixDir);
+	config.append(selectedProton);
+	config.append(gameId);
+	config.append(gameExe);
+	config.append(launchArgs);
+	config.append(selectedStore);
+	config.append(gameTitle);
+	config.append(awuArgs);
+	QString file;
+	if(gameFile.isEmpty()){
+		QDateTime currentDateTime = QDateTime::currentDateTime();
+		qint64 unixTime = currentDateTime.toSecsSinceEpoch();
+		file = QString::number(unixTime) + ".toml";
+	} else {
+		file = gameFile;
+	}
+	bool fileWrite = writeConfigFile(config, file);
+	if(fileWrite){
+		PopupWindow::close();
+	} else {
+		QMessageBox msgBox;
+		msgBox.setIcon(QMessageBox::Critical);
+		msgBox.setText("An error occurred!");
+		msgBox.setInformativeText("Couldnt write to file, check terminal window");
+		msgBox.setWindowTitle("Error");
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.exec();
+		PopupWindow::close();
+	}
 }
 void PopupWindow::searchDatabase(){
 	QString gameTitle = gameName->toPlainText();
@@ -121,7 +269,46 @@ void PopupWindow::searchDatabase(){
 }
 void PopupWindow::setPrefix(){
 	qDebug() << "setPrefix function";
+	QString prefixDir = QFileDialog::getExistingDirectory(this, "Select Prefix Directory", QDir::homePath());
+	if (!prefixDir.isEmpty()) {
+        qDebug() << "Selected Prefix Directory: " << prefixDir;
+        prefixPath->setText(prefixDir);
+    }
 }
 void PopupWindow::setExe(){
 	qDebug() << "SetExe function";
+	QString exeFile = QFileDialog::getOpenFileName(this, "Select Executable File", QDir::homePath());
+	if (!exeFile.isEmpty()) {
+        qDebug() << "Selected Executable File: " << exeFile;
+        gameExeEdit->setText(exeFile);
+    }
+}
+void PopupWindow::populateProtonBox(){
+	qDebug() << "populateProtonBox";
+	QDir ProtonDir(getUserConfigDirectory() + "/awu/proton");
+	if(!ProtonDir.exists()){
+		qDebug() << "Proton directory does not exist!";
+		return;
+	}
+
+	QStringList filters;
+    filters << "*";
+
+    QStringList protonNames;
+    QDirIterator it(ProtonDir.absolutePath(), filters, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        QString protonName = it.fileName();
+        QString protonPath = it.filePath();
+        qDebug() << "Proton found: " << protonName << " Path: " << protonPath;
+        protonComboBox->addItem(protonName, protonPath);
+    }
+	protonComboBox->setCurrentIndex(-1);
+
+}
+void PopupWindow::protonComboBoxChanged(int index) {
+    QString selectedProton = protonComboBox->currentText();
+    QString selectedProtonPath = protonComboBox->currentData().toString();
+	qDebug() << "Selected Proton: " << selectedProton;
+	qDebug() << "Path: " << selectedProtonPath;
 }
