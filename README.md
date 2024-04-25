@@ -6,7 +6,7 @@ This is work in process and the application is not feature complete. Games can b
 
 ![app image](img/app.png)
 
-This is my simplistic Qt6 frontend for umu-launcher (previously named ULWGL) that can use Valves Proton to launch Windows game on Linux. The name is a subject to change.
+This is my simplistic Qt6 frontend for umu-launcher (previously named ULWGL) that can use Valves Proton to launch Windows games on Linux independent from Steam. The name is a subject to change.
 
 This launcher is a hobby project and for personal use. You are free to expand or use the code however you want.
 
@@ -33,6 +33,8 @@ you are free to modify the install location if you want.
 
 
 # TODO
+
+Fine tune the UI.
 
 One final thing for the launcher is fetch the correct game ID from the Umu database so that adding fixes for the games is fast and effortless.
 
