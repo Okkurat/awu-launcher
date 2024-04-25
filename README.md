@@ -31,3 +31,9 @@ make install
 ```
 you are free to modify the install location if you want.
 
+
+# TODO
+
+One final thing for the launcher is fetch the correct game ID from the Umu database so that adding fixes for the games is fast and effortless.
+
+https://github.com/Open-Wine-Components/umu-database

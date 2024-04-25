@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 	deleteGameButton = new QPushButton("Delete game");
 	editGameButton = new QPushButton("Edit");
 
-    // Setting fixed sizes for certain widgets
     launchArgumentsLabel->setFixedSize(400,30);
     commandTextEdit->setFixedSize(400, 30);
     playButton->setFixedSize(200,30);
@@ -56,13 +55,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainLayout->addWidget(launchArgumentsLabel);
     mainLayout->addWidget(commandTextEdit);
 
-    // Create a horizontal layout for wine buttons
     wineLayout = new QHBoxLayout;
     wineLayout->addWidget(wineTricksButton);
     wineLayout->addWidget(wineConfigButton);
 
-
-    // Create a horizontal layout for play and kill buttons
     mainButtonLayout = new QHBoxLayout;
     mainButtonLayout->addWidget(playButton);
     mainButtonLayout->addWidget(killButton);
@@ -76,7 +72,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     mainLayout->addWidget(addGameButton);
 	mainLayout->addWidget(deleteGameButton);
 	
-	// Add all to mainLayout
     mainLayout->addLayout(mainButtonLayout);
     mainLayout->addLayout(wineLayout);
 	mainLayout->addLayout(addDeleteLayout);

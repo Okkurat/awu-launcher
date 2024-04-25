@@ -48,7 +48,6 @@ void populateComboBox(QComboBox &comboBox){
         QString fileName = file.left(file.lastIndexOf('.'));
         QString filePath = directory.absoluteFilePath(file);
 
-        // Read toml file
         QFile configFile(filePath);
         if(configFile.open(QIODevice::ReadOnly | QIODevice::Text)){
             QTextStream in(&configFile);
@@ -131,11 +130,11 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
 }
 QString cleanOutput(const QString &output) {
     QString cleanedOutput = output;
-    QRegularExpression re("\x1B\\[[0-9;]*[A-Za-z]"); // Regular expression to match escape sequences
-    cleanedOutput.remove(re); // Remove escape sequences
-    cleanedOutput.remove("\""); // Remove extra quotes
-    cleanedOutput.replace("\\n", "\n"); // Replace "\\n" with newline
-    return cleanedOutput.trimmed(); // Remove leading and trailing whitespace
+    QRegularExpression re("\x1B\\[[0-9;]*[A-Za-z]");
+    cleanedOutput.remove(re);
+    cleanedOutput.remove("\"");
+    cleanedOutput.replace("\\n", "\n");
+    return cleanedOutput.trimmed();
 }
 
 QPair<QString, QString> getGameInfo(QComboBox &comboBox){
@@ -195,10 +194,8 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
 void killAppProcess(QProcess &process){
     QString command = "ls -l /proc/*/exe 2>/dev/null | grep -E 'wine(64)?-preloader|wineserver' | perl -pe 's;^.*/proc/(\\d+)/exe.*$;$1;g;' | xargs -n 1 kill | killall -s9 winedevice.exe";
 
-    // Start the process to run the command
     process.start("/bin/bash", QStringList() << "-c" << command);
 
-    // Wait for the process to finish
     if (!process.waitForFinished()) {
         qDebug() << "Error: Failed to execute the command.";
     } else {
