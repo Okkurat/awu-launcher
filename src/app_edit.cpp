@@ -134,13 +134,10 @@ PopupWindow::PopupWindow(QWidget *parent, const QString& gameFile) : QDialog(par
 				qDebug() << line;
 				if(i == 0 || i == 1 || i == 8){
 					i++;
-					qDebug() << "CATCH";
 					continue;
 				}
-				qDebug() << "YES";
 				QStringList parts = line.split("=");
 				if(parts.length() == 2){
-					qDebug() << "FUCK YEAAH";
 					QString key = parts[0].trimmed();
 					QString value = parts[1].trimmed().remove('\"');
 					if(key == "prefix"){
