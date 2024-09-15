@@ -1,7 +1,3 @@
-# NOTE
-
-This is work in process and the application is not feature complete. Games can be launched and winetricks and winecfg can be used. The launcher use umu launchers config files and the launcher has a simple GUI for making those configuration files.
-
 # What is this?
 
 ![app image](img/app.png)

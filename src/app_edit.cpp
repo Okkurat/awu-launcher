@@ -280,19 +280,19 @@ void PopupWindow::setExe(){
         gameExeEdit->setText(exeFile);
     }
 }
-void PopupWindow::populateProtonBox(){
-	qDebug() << "populateProtonBox";
-	QDir ProtonDir(getUserConfigDirectory() + "/awu/proton");
-	if(!ProtonDir.exists()){
-		qDebug() << "Proton directory does not exist!";
-		return;
-	}
+void PopupWindow::populateProtonBox() {
+    qDebug() << "populateProtonBox";
+    QDir ProtonDir(getUserConfigDirectory() + "/awu/proton");
+    if (!ProtonDir.exists()) {
+        qDebug() << "Proton directory does not exist!";
+        return;
+    }
 
-	QStringList filters;
+    QStringList filters;
     filters << "*";
 
     QStringList protonNames;
-    QDirIterator it(ProtonDir.absolutePath(), filters, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QDirIterator it(ProtonDir.absolutePath(), filters, QDir::AllDirs | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
     while (it.hasNext()) {
         it.next();
         QString protonName = it.fileName();
@@ -300,9 +300,11 @@ void PopupWindow::populateProtonBox(){
         qDebug() << "Proton found: " << protonName << " Path: " << protonPath;
         protonComboBox->addItem(protonName, protonPath);
     }
-	protonComboBox->setCurrentIndex(-1);
-
+    protonComboBox->setCurrentIndex(-1);
 }
+
+
+
 void PopupWindow::protonComboBoxChanged(int index) {
     QString selectedProton = protonComboBox->currentText();
     QString selectedProtonPath = protonComboBox->currentData().toString();
