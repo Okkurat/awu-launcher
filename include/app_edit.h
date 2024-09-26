@@ -15,44 +15,44 @@ class PopupWindow : public QDialog {
 
 public:
     PopupWindow(QWidget *parent = nullptr,
-			const QString& configFile = "");
+    const QString& configFile = "");
     ~PopupWindow();
 
 private slots:
-	void doneFn(const QString& gameFile);
-	void searchDatabase();
-	void setPrefix();
-	void setExe();
-	void protonComboBoxChanged(int index);
+    void doneFn(const QString& gameFile);
+    void searchDatabase();
+    void setPrefix();
+    void setExe();
+    void protonComboBoxChanged(int index);
 private:
-	QWidget *centralWidget;
+    QWidget *centralWidget;
     QVBoxLayout *layout;
-	QHBoxLayout *doneCloseLayout;
-	QHBoxLayout *gameNameLayout;
-	QHBoxLayout *prefixLayout;
-	QHBoxLayout *gameExeLayout;
+    QHBoxLayout *doneCloseLayout;
+    QHBoxLayout *gameNameLayout;
+    QHBoxLayout *prefixLayout;
+    QHBoxLayout *gameExeLayout;
     QLabel *gameLabel;
-	QLabel *gameExeLabel;
-	QLabel *protonLabel;
-	QLabel *prefixLabel;
-	QTextEdit *gameName;
-	QTextEdit *prefixPath;
-	QTextEdit *gameExeEdit;
+    QLabel *gameExeLabel;
+    QLabel *protonLabel;
+    QLabel *prefixLabel;
+    QTextEdit *gameName;
+    QTextEdit *prefixPath;
+    QTextEdit *gameExeEdit;
     QPushButton *closeButton;
-	QPushButton *doneButton;
-	QPushButton *searchButton;
-	QPushButton *prefixButton;
-	QPushButton *gameExeButton;
-	QComboBox *protonComboBox;
-	QLabel *gameIdLabel;
-	QTextEdit *gameIdEdit;
-	QLabel *launchArgsLabel;
-	QTextEdit *launchArgsEdit;
-	QLabel *storeLabel;
-	QComboBox *storeComboBox;
-	QLabel *awuArgsLabel;
-	QTextEdit *awuArgsEdit;
-	void populateProtonBox();
+    QPushButton *doneButton;
+    QPushButton *searchButton;
+    QPushButton *prefixButton;
+    QPushButton *gameExeButton;
+    QComboBox *protonComboBox;
+    QLabel *gameIdLabel;
+    QTextEdit *gameIdEdit;
+    QLabel *launchArgsLabel;
+    QTextEdit *launchArgsEdit;
+    QLabel *storeLabel;
+    QComboBox *storeComboBox;
+    QLabel *awuArgsLabel;
+    QTextEdit *awuArgsEdit;
+    void populateProtonBox();
 };
 
 #endif // APP_EDIT_H

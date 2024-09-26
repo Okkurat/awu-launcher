@@ -93,10 +93,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
 
 MainWindow::~MainWindow() {
-    delete gameProcess;
-    delete killProcess;
-    delete wineTricksProcess;
-    delete wineConfigProcess;
 }
 void MainWindow::editGameFn(){
     QString gameFile = getGameInfo(*comboBox).first;
