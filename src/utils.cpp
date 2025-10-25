@@ -8,7 +8,6 @@
 #include <QFile>
 #include <QList>
 #include <fstream>
-#include <sstream>
 #include <string>
 
 QString getUserConfigDirectory() {
@@ -24,17 +23,17 @@ QString getUserConfigDirectory() {
 }
 
 void createMyAppDirectory() {
-    QDir AppDir(getUserConfigDirectory() + "/awu");
-    QDir ProtonDir(getUserConfigDirectory() + "/awu/proton");
-    QDir ConfDir(getUserConfigDirectory() + "/awu/umu-conf");
+    QDir appDir(getUserConfigDirectory() + "/awu");
+    QDir protonDir(getUserConfigDirectory() + "/awu/proton");
+    QDir confDir(getUserConfigDirectory() + "/awu/umu-conf");
 
-    if(!AppDir.exists()){
+    if(!appDir.exists()){
         QDir().mkpath(getUserConfigDirectory() + "/awu");
     }
-    if(!ConfDir.exists()){
+    if(!confDir.exists()){
         QDir().mkpath(getUserConfigDirectory() + "/awu/umu-conf");
     }
-    if(!ProtonDir.exists()){
+    if(!protonDir.exists()){
         QDir().mkpath(getUserConfigDirectory() + "/awu/proton");
     }
     return;
@@ -45,24 +44,25 @@ void populateComboBox(QComboBox &comboBox){
     comboBox.clear();
     QMap<QString, QString> appName;
     foreach(const QString &file, files) {
-        QString fileName = file.left(file.lastIndexOf('.'));
-        QString filePath = directory.absoluteFilePath(file);
+    QString fileName = file.left(file.lastIndexOf('.'));
+    QString filePath = directory.absoluteFilePath(file);
 
-        QFile configFile(filePath);
-        if(configFile.open(QIODevice::ReadOnly | QIODevice::Text)){
-            QTextStream in(&configFile);
-            while(!in.atEnd()){
-                QString line = in.readLine().trimmed();
-                if(line.startsWith("name")){
-                    QString name = line.split('=')[1].trimmed();
-                    name.remove(QChar('\"'));
+    QFile configFile(filePath);
+    if(configFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream in(&configFile);
+        while(!in.atEnd()){
+            QString line = in.readLine().trimmed();
+            if(line.startsWith("name")){
+                int firstEquals = line.indexOf('=');
+                QString name = (firstEquals != -1) ? line.mid(firstEquals + 1).trimmed() : "";
+                name.remove(QChar('\"'));
 
-                    appName.insert(name, fileName + ".toml");
-                    comboBox.addItem(name);
-                    break;
-                }
+                appName.insert(name, fileName + ".toml");
+                comboBox.addItem(name);
+                break;
             }
         }
+    }
   
 	configFile.close();
     }
@@ -107,17 +107,17 @@ void runWineTask(const QString &selectedFile, const QString &taskName, QProcess 
         }
         qDebug() << taskName << "process started. Please close" << taskName << "manually when finished.";
 
-        QObject::connect(&process, &QProcess::readyReadStandardOutput, [&]() {
+        QObject::connect(&process, &QProcess::readyReadStandardOutput, [&process]() {
             QByteArray output = process.readAllStandardOutput();
             qDebug() << cleanOutput(output);
         });
 
-        QObject::connect(&process, &QProcess::readyReadStandardError, [&]() {
+        QObject::connect(&process, &QProcess::readyReadStandardError, [&process]() {
             QByteArray error = process.readAllStandardError();
             qDebug() << cleanOutput(error);
         });
 
-        QObject::connect(&process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&](int exitCode, QProcess::ExitStatus exitStatus) {
+        QObject::connect(&process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [](int exitCode, QProcess::ExitStatus exitStatus) {
             if (exitStatus == QProcess::NormalExit) {
                 qDebug() << "Process finished successfully with exit code:" << exitCode;
             } else {
@@ -152,8 +152,24 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
     qDebug() << commandText;
     QStringList commandParts = commandText.split(' ', Qt::SkipEmptyParts);
 
+    // Parse environment variables from the beginning of commandText
+    QStringList environment = QProcess::systemEnvironment();
+    while (!commandParts.isEmpty()) {
+        QString part = commandParts.first();
+        // Check if this part looks like an environment variable (KEY=VALUE)
+        // and doesn't start with - (to avoid matching --option=value)
+        if (part.contains('=') && !part.startsWith('-')) {
+            environment << commandParts.takeFirst();
+            qDebug() << "Setting environment variable:" << part;
+        } else {
+            break;  // Found the actual command, stop parsing env vars
+        }
+    }
+    process.setEnvironment(environment);
+
     // Currently if umu-run is not /usr, supports launching through /.local/bin only
-    // Some weird behaviour with paths happen when you run this as desktop file. If you give commands like mangohud and / or gamescope it works, but otherwise it will not find the path so we do this the ugly way
+    // Some weird behaviour with paths happen when you run this as desktop file. If you give commands like mangohud and / or gamescope it works
+    // but otherwise it will not find the path so we do this the ugly way
     QString umuRunPathTest = QDir::homePath() + "/.local/bin/umu-run";
     QFile umuRunPathCheck(umuRunPathTest);
     if(umuRunPathCheck.exists()){
@@ -162,7 +178,7 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
         umuRun = "umu-run";
     }
     qDebug() << umuRun;
-    if (!commandText.isEmpty()) {
+    if (!commandParts.isEmpty()) {
         QString command = commandParts.takeFirst();
         arguments << commandParts;
         arguments << umuRun << "--config" << selectedGame;
@@ -175,15 +191,15 @@ void runGameProcess(QProcess &process, QString commandText, QString selectedGame
         qDebug() << "Failed to start process:" << process.errorString();
         return;
     }
-    QObject::connect(&process, &QProcess::readyReadStandardOutput, [&]() {
+    QObject::connect(&process, &QProcess::readyReadStandardOutput, [&process]() {
         QByteArray output = process.readAllStandardOutput();
         qDebug() << cleanOutput(output);
     });
-    QObject::connect(&process, &QProcess::readyReadStandardError, [&]() {
+    QObject::connect(&process, &QProcess::readyReadStandardError, [&process]() {
         QByteArray error = process.readAllStandardError();
         qDebug() << cleanOutput(error);
     });
-    QObject::connect(&process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&](int exitCode, QProcess::ExitStatus exitStatus) {
+    QObject::connect(&process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [](int exitCode, QProcess::ExitStatus exitStatus) {
         if (exitStatus == QProcess::NormalExit) {
             qDebug() << "Process finished successfully with exit code:" << exitCode;
         } else {
@@ -214,15 +230,17 @@ void updateCommandTextEdit(QComboBox &comboBox, QTextEdit &commandTextEdit) {
             while (!in.atEnd()) {
                 QString line = in.readLine().trimmed();
                 if (line.startsWith("awu_args")) {
-                    QString args = line.split('=')[1].trimmed();
+                    int firstEquals = line.indexOf('=');
+                    QString args = (firstEquals != -1) ? line.mid(firstEquals + 1).trimmed() : "";
                     args.remove(QChar('\"'));
                     commandTextEdit.clear();
-                    if (args != "none") {
+                    if (!args.isEmpty() && args != "none") {
                         commandTextEdit.insertPlainText(args);
                     }
                     break;
                 }
             }
+            configFile.close();
         } else {
             commandTextEdit.clear();
         }
@@ -265,13 +283,16 @@ bool writeConfigFile(QList<QString> config, const QString &fileName){
     qDebug() << "# " << fileName;
     file << "[umu]" << std::endl;
     qDebug() << "[umu]";
+    bool awuSectionWritten = false;
     for (int i = 0; i < config.size(); ++i) {
         qDebug() << config[i];
-        file << config[i].toStdString() << std::endl;
-        if(i == 5) {
+        // Check if this is the first [awu] section item (name or awu_args)
+        if (!awuSectionWritten && (config[i].startsWith("name") || config[i].startsWith("awu_args"))) {
             file << "[awu]" << std::endl;
             qDebug() << "[awu]";
+            awuSectionWritten = true;
         }
+        file << config[i].toStdString() << std::endl;
     }
     file.close();
 

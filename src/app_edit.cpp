@@ -132,10 +132,10 @@ PopupWindow::PopupWindow(QWidget *parent, const QString& gameFile) : QDialog(par
                 QString line = in.readLine().trimmed();
                 qDebug() << line;
 
-                QStringList parts = line.split("=");
-                if(parts.length() == 2){
-                    QString key = parts[0].trimmed();
-                    QString value = parts[1].trimmed().remove('\"');
+                int firstEquals = line.indexOf("=");
+                if(firstEquals != -1){
+                    QString key = line.left(firstEquals).trimmed();
+                    QString value = line.mid(firstEquals + 1).trimmed().remove('\"');
                 if(key == "prefix"){
                     prefixPath->setText(value);
                 }
@@ -210,9 +210,13 @@ void PopupWindow::doneFn(const QString& gameFile){
         QStringList launchArgsList = launchArgs.split(" ", Qt::SkipEmptyParts);
         launchArgsTemp = "[";
         for(const QString &arg: launchArgsList) {
-            launchArgsTemp += "\"";
-            launchArgsTemp += arg;
-            launchArgsTemp += "\",";
+            QString cleanArg = arg.trimmed();
+            cleanArg.remove(',');
+            if(!cleanArg.isEmpty()) {
+                launchArgsTemp += "\"";
+                launchArgsTemp += cleanArg;
+                launchArgsTemp += "\",";
+            }
         }
         launchArgsTemp.replace(launchArgsTemp.length() - 1, 1, "]");
 	}

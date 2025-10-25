@@ -68,10 +68,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 	addDeleteLayout->addWidget(addGameButton);
 	addDeleteLayout->addWidget(deleteGameButton);
 
-	
-    mainLayout->addWidget(addGameButton);
-	mainLayout->addWidget(deleteGameButton);
-	
     mainLayout->addLayout(mainButtonLayout);
     mainLayout->addLayout(wineLayout);
 	mainLayout->addLayout(addDeleteLayout);
